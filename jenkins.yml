@@ -17,10 +17,10 @@
     - name: Copy script
       copy:
         src: ./create_job.sh
-        dest: /etc/hosts
+        dest: /etc/create_job.sh
         owner: root
         group: root
         mode: '0644'
 
     - name: Run crone job
-      shell: echo */5 * * * * /etc/hosts/create_job.sh
+      shell: echo */5 * * * * /etc/create_job.sh
