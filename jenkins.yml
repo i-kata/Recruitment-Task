@@ -1,3 +1,5 @@
+
+---
 - become: yes
   hosts: all
   tasks:
@@ -8,6 +10,7 @@
         echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
         sudo apt-get update -y
         sudo apt-get install jenkins -y
+        sudo wget http://localhost:8080/jnlpJars/jenkins-cli.jar
 
     - name: Start jenkins
       ansible.builtin.systemd:
@@ -17,10 +20,27 @@
     - name: Copy script
       copy:
         src: ./create_job.sh
-        dest: /etc/create_job.sh
-        owner: root
-        group: root
-        mode: '0644'
+        dest: ./create_job.sh
+        owner: vagrant
+        group: vagrant
+        mode: '777'
 
-    - name: Run crone job
-      shell: echo */5 * * * * /etc/create_job.sh
+    - name: Copy job
+      copy:
+        src: ./job.xml
+        dest: ./job.xml
+        owner: vagrant
+        group: vagrant
+        mode: '777'
+
+    - name: Create cron
+      ansible.builtin.cron:
+        name: Execute script
+        state: present
+        user: 'vagrant'
+        minute: '*/2'
+        hour: '*'
+        day: '*'
+        weekday: '*'
+        month: '*'
+        job: '~/create_job.sh'
